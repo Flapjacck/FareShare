@@ -1,0 +1,3 @@
+# FareShare
+
+Ride sharing app
