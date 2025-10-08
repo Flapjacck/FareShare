@@ -1,0 +1,45 @@
+
+# GitHub Actions workflow for building and testing the frontend
+name: Frontend CI
+
+
+# Trigger workflow on push or pull request to frontend directory
+on:
+  push:
+    paths:
+      - 'frontend/**'
+  pull_request:
+    paths:
+      - 'frontend/**'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      # Checkout the repository code
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      # Set up Node.js environment
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+
+      # Install frontend dependencies
+      - name: Install dependencies
+        run: |
+          cd frontend
+          npm install
+
+      # Build the frontend app
+      - name: Build frontend
+        run: |
+          cd frontend
+          npm run build
+
+      # (Optional) Run frontend tests if available
+      # - name: Test frontend
+      #   run: |
+      #     cd frontend
+      #     npm run test
