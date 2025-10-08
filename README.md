@@ -4,7 +4,7 @@ Ride sharing app
 
 ```bash
 # Clone the repository
-git clone https://github.com/your-username/FareShare.git
+git clone https://github.com/Flapjacck/FareShare.git
 ```
 
 [Backend Readme](./backend/README.md)

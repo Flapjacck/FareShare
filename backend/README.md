@@ -12,8 +12,6 @@ Contains the backend for FareShare.
 ### Backend Commands
 
 ```bash
-# Clone the repository
-git clone https://github.com/your-username/FareShare.git
 # Navigate to the backend directory
 cd backend
 # Create a virtual environment named 'venv'
