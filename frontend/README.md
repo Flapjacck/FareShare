@@ -1,6 +1,6 @@
 # FareShare Frontend
 
-This project contains the frontend for FareShare.
+Contains the frontend for FareShare.
 
 ## Getting Started
 
@@ -9,14 +9,13 @@ This project contains the frontend for FareShare.
 - [Node.js](https://nodejs.org/) (v16 or higher)
 - [npm](https://www.npmjs.com/)
 
-### Installation
+### Frontend Commands
 
 ```bash
+# Navigate to the frontend directory
+cd frontend
+# Install dependencies
 npm install
-```
-
-### Running the Frontend
-
-```bash
+# Start the development server
 npm run dev
 ```
