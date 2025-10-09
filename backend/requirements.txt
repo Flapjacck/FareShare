@@ -1,0 +1,6 @@
+# FastAPI: The main web framework for building APIs
+fastapi
+# Uvicorn: ASGI server to run FastAPI apps
+uvicorn
+# Pydantic: Data validation and settings management
+pydantic
