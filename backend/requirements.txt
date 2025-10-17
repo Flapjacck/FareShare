@@ -4,3 +4,36 @@ fastapi
 uvicorn
 # Pydantic: Data validation and settings management
 pydantic
+
+# Database
+sqlalchemy
+alembic
+psycopg2-binary  # PostgreSQL driver; use what matches your DB
+
+# Authentication and security
+python-jose[cryptography]  # For JWT tokens
+passlib[bcrypt]  # Password hashing
+python-multipart  # Form data handling
+
+# Environment variables
+python-dotenv
+
+# HTTP client for external APIs
+httpx
+
+# Geolocation (for ride-sharing features)
+geopy
+
+# WebSockets for real-time updates
+websockets
+
+# Testing
+pytest
+pytest-asyncio
+
+# Optional but recommended
+redis  # For caching and message broker
+celery  # For background tasks
+email-validator  # For email validation
+phonenumbers  # For phone number validation
+python-dateutil  # Extended datetime functionality
