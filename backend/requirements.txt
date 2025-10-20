@@ -5,10 +5,13 @@ uvicorn
 # Pydantic: Data validation and settings management
 pydantic
 
-# Database
-sqlalchemy
-alembic
-psycopg2-binary  # PostgreSQL driver; use what matches your DB
+# Database - Async SQLAlchemy with PostgreSQL + PostGIS support
+sqlalchemy[asyncio]>=2.0.0  # Async SQLAlchemy ORM
+asyncpg  # Async PostgreSQL driver (replaces psycopg2)
+alembic  # Database migrations
+geoalchemy2  # PostGIS geometry/geography support
+psycopg2-binary  # Sync driver (for Alembic migrations)
+shapely  # Python library for manipulation and analysis of geometric objects
 
 # Authentication and security
 python-jose[cryptography]  # For JWT tokens
