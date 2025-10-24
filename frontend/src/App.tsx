@@ -1,7 +1,6 @@
-import "./App.css";
+import RidePostAndRequestPage from "./pages/RidePostAndRequestPage";
 
-function App() {
-  return <></>;
+export default function App() {
+  return <RidePostAndRequestPage />;
 }
 
-export default App;
