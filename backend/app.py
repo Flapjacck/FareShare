@@ -5,12 +5,15 @@ FastAPI application entry point with health checks and database connectivity.
 from datetime import datetime
 from fastapi import FastAPI, status
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.staticfiles import StaticFiles
 from contextlib import asynccontextmanager
 import logging
+import os
 from sqlalchemy import text, select
 
 from src.config.db import init_db, close_db, get_async_session
 from src.models import User, Ride, Booking, Review
+from src.routes import auth_router, users_router
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
@@ -48,17 +51,21 @@ app = FastAPI(
 # CORS middleware - configure based on your frontend URL
 app.add_middleware(
     CORSMiddleware,
-    # During development, you can allow all origins for easier testing
-    # allow_origins=["*"],  # WARNING: Only use this during development!
-    allow_origins=[
-        "http://localhost:5173",  # Vite default
-        "http://127.0.0.1:5173",  # Vite default accessed via IP
-        "http://localhost:3000",  # Create React App default
-    ],  # In production, replace with specific frontend domain
+    # Allow all origins for development - replace with specific domains in production
+    allow_origins=["*"],  # For development only!
     allow_credentials=True,
-    allow_methods=["*"],
+    allow_methods=["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
     allow_headers=["*"],
 )
+
+# Mount static files for avatar uploads
+# Create uploads directory if it doesn't exist
+os.makedirs("uploads/avatars", exist_ok=True)
+app.mount("/uploads", StaticFiles(directory="uploads"), name="uploads")
+
+# Include API routers
+app.include_router(auth_router, prefix="/api")
+app.include_router(users_router, prefix="/api")
 
 
 @app.get("/", tags=["Root"])
