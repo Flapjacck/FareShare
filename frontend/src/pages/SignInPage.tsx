@@ -84,7 +84,9 @@ export default function SignIn() {
               </div>
             </div>
             <a>
-              <p className="text-sm text-right text-gray-600 hover:underline cursor-pointer pb-5">
+              <p 
+              className="text-sm text-right text-gray-600 hover:underline cursor-pointer pb-5"
+              onClick={() => navigate("/forgot-password")}>
                 Forgot Password?
               </p>
             </a>
@@ -95,6 +97,7 @@ export default function SignIn() {
             <button
               type="submit"
               className="w-full bg-gray-100 text-black py-3 border-2 border-black-300 rounded-sm  drop-shadow-sm drop-shadow-black hover:bg-gray-300 transition"
+              onClick={() => navigate("/dashboard")}
             >
               Login
             </button>
@@ -102,13 +105,12 @@ export default function SignIn() {
             <button
               type="submit"
               className="w-full bg-gray-100 text-black py-3 border-2 border-black-300 rounded-sm  drop-shadow-sm drop-shadow-black hover:bg-gray-300 transition"
+              onClick={() => navigate("/register")}
             >
               Register
             </button>
           </div>
         </form>
-
-        
       </div>
     </div>
   );
