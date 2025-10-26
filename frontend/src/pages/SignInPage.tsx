@@ -11,37 +11,29 @@ export default function SignIn() {
   const [error, setError] = useState("");
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setError("");
+  e.preventDefault();
+  setError("");
 
-    if (!email || !password) {
-      setError("Please fill in all fields.");
-      return;
-    }
+  // --- Frontend validation only ---
+  if (!email || !password) {
+    setError("Please fill in all fields.");
+    return;
+  }
 
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(email)) {
-      setError("Please enter a valid email address.");
-      return;
-    }
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  if (!emailRegex.test(email)) {
+    setError("Please enter a valid email address.");
+    return;
+  }
 
-    try {
-      const res = await fetch("/auth/login", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, password }),
-      });
+  // --- Mocked "login" ---
+  if (email === "test@example.com" && password === "123456") {
+    navigate("/dashboard");
+  } else {
+    setError("Invalid email or password.");
+  }
+};
 
-      if (!res.ok) {
-        throw new Error("Invalid email or password");
-      }
-
-      // Redirect to dashboard after successful login
-      navigate("/dashboard");
-    } catch (err: any) {
-      setError(err.message);
-    }
-  };
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-white">
@@ -85,7 +77,7 @@ export default function SignIn() {
             </div>
             <a>
               <p 
-              className="text-sm text-right text-gray-600 hover:underline cursor-pointer pb-5"
+              className="text-sm text-right text-gray-600 hover:underline cursor-pointer"
               onClick={() => navigate("/forgot-password")}>
                 Forgot Password?
               </p>
@@ -97,7 +89,6 @@ export default function SignIn() {
             <button
               type="submit"
               className="w-full bg-gray-100 text-black py-3 border-2 border-black-300 rounded-sm  drop-shadow-sm drop-shadow-black hover:bg-gray-300 transition"
-              onClick={() => navigate("/dashboard")}
             >
               Login
             </button>
