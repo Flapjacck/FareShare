@@ -3,30 +3,17 @@ FareShare API - Main Application
 FastAPI application entry point with health checks and database connectivity.
 """
 from datetime import datetime
-from typing import Optional
-from fastapi import FastAPI, status, HTTPException
-from pydantic import BaseModel, EmailStr
-from passlib.context import CryptContext
+from fastapi import FastAPI, status
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.staticfiles import StaticFiles
 from contextlib import asynccontextmanager
 import logging
+import os
 from sqlalchemy import text, select
 
 from src.config.db import init_db, close_db, get_async_session
 from src.models import User, Ride, Booking, Review
-from sqlalchemy import select
-
-# Password hashing context
-pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
-
-
-class SignUpRequest(BaseModel):
-    username: str
-    password: str
-    email: EmailStr
-    first_name: Optional[str] = None
-    last_name: Optional[str] = None
-    role: Optional[str] = None  # 'passenger' or 'driver'
+from src.routes import auth_router, users_router
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
@@ -64,17 +51,21 @@ app = FastAPI(
 # CORS middleware - configure based on your frontend URL
 app.add_middleware(
     CORSMiddleware,
-    # During development, you can allow all origins for easier testing
-    # allow_origins=["*"],  # WARNING: Only use this during development!
-    allow_origins=[
-        "http://localhost:5173",  # Vite default
-        "http://127.0.0.1:5173",  # Vite default accessed via IP
-        "http://localhost:3000",  # Create React App default
-    ],  # In production, replace with specific frontend domain
+    # Allow all origins for development - replace with specific domains in production
+    allow_origins=["*"],  # For development only!
     allow_credentials=True,
-    allow_methods=["*"],
+    allow_methods=["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
     allow_headers=["*"],
 )
+
+# Mount static files for avatar uploads
+# Create uploads directory if it doesn't exist
+os.makedirs("uploads/avatars", exist_ok=True)
+app.mount("/uploads", StaticFiles(directory="uploads"), name="uploads")
+
+# Include API routers
+app.include_router(auth_router, prefix="/api")
+app.include_router(users_router, prefix="/api")
 
 
 @app.get("/", tags=["Root"])
@@ -207,61 +198,6 @@ async def test_api():
         "status": "ok",
         "timestamp": datetime.now().isoformat()
     }
-
-
-
-@app.post("/auth/signup", tags=["Auth"], status_code=status.HTTP_201_CREATED)
-async def signup(payload: SignUpRequest):
-    """
-    Simple signup endpoint.
-    - validates request
-    - checks for duplicate email
-    - hashes password and creates user record
-    Note: For simplicity this does NOT require email verification — users are created active.
-    """
-    try:
-        async with get_async_session() as session:
-            # check duplicate email
-            result = await session.execute(select(User).filter_by(email=payload.email))
-            existing = result.scalar_one_or_none()
-            if existing:
-                raise HTTPException(status_code=400, detail="Email already in use")
-
-            # build full name
-            full_name = ""
-            if payload.first_name or payload.last_name:
-                parts = []
-                if payload.first_name:
-                    parts.append(payload.first_name.strip())
-                if payload.last_name:
-                    parts.append(payload.last_name.strip())
-                full_name = " ".join(parts)
-            else:
-                full_name = payload.username
-
-            # hash password
-            hashed = pwd_context.hash(payload.password)
-
-            # Store role choice in verification_method (lightweight, schema change avoided)
-            verification_method = payload.role if payload.role else None
-
-            user = User(
-                full_name=full_name,
-                email=payload.email,
-                password_hash=hashed,
-                verification_method=verification_method,
-            )
-
-            session.add(user)
-            # flush to persist (commit will happen in get_async_session context manager)
-            await session.flush()
-
-            return {"message": "User created"}
-    except HTTPException:
-        raise
-    except Exception as e:
-        # Log omitted here — return generic error
-        raise HTTPException(status_code=500, detail=str(e))
 
 
 if __name__ == "__main__":
