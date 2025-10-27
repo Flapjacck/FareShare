@@ -1,8 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 
-import Logo from "../components/Logo";
-
 export default function SignIn() {
   const navigate = useNavigate();
   const [email, setEmail] = useState("");
@@ -36,11 +34,8 @@ export default function SignIn() {
 
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-white">
-      <div className="w-full max-w-sm p-8  ">
-        {/* Logo */}
-        <Logo />
-
+    <div className="flex items-center justify-center bg-white" style={{ height: 'calc(100vh - 80px)' }}>
+      <div className="w-full max-w-sm p-8 -mt-10">
         {/* Form */}
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="p-1 px-5 bg-gray-100 rounded-md border border-gray-300 drop-shadow-sm drop-shadow-black">
