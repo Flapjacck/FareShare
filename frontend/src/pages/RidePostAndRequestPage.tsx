@@ -88,18 +88,6 @@ export default function RidePostAndRequestPage() {
 
   return (
     <div className="flex flex-col min-h-screen bg-gray-50">
-      {/* Header / Logo */}
-      <header className="flex items-center justify-between px-4 py-3 bg-white shadow">
-        <img
-          src="/FareShare_Logo.png"
-          alt="FareShare logo"
-          className="h-8 w-auto object-contain"
-        />
-        <span role="img" aria-label="user" className="text-2xl">
-          👤
-        </span>
-      </header>
-
       {/* Mode Toggle */}
       <div className="flex justify-center mt-3">
         <div className="inline-flex border rounded-lg overflow-hidden shadow-sm">
@@ -322,26 +310,6 @@ export default function RidePostAndRequestPage() {
           ))}
         </div>
       )}
-
-      {/* Bottom nav */}
-      <nav className="mt-auto flex justify-around items-center py-2 bg-white border-t shadow-inner text-gray-600">
-        <div className="flex flex-col items-center text-sm">
-          <span>🏠</span>
-          <p>Home</p>
-        </div>
-        <div className="flex flex-col items-center text-sm">
-          <span>📊</span>
-          <p>Dashboard</p>
-        </div>
-        <div className="flex flex-col items-center text-sm">
-          <span>🗺️</span>
-          <p>Map</p>
-        </div>
-        <div className="flex flex-col items-center text-sm">
-          <span>❓</span>
-          <p>Help</p>
-        </div>
-      </nav>
     </div>
   );
 }

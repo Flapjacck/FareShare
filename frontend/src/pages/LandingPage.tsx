@@ -1,5 +1,4 @@
-import React, { useState } from "react";
-import logoImg from "../FareShare_Logo.png"; // adjust path if needed
+import React, { useState, useEffect } from "react";
 
 const texts = [
     {
@@ -20,255 +19,81 @@ const texts = [
     },
 ];
 
-const pageLayout: React.CSSProperties = {
-    minHeight: "100vh",
-    display: "flex",
-    flexDirection: "column",
-    alignItems: "center",
-    justifyContent: "space-between",
-    fontFamily: "Nunito, sans-serif",
-    background: "#ffffff",
-    color: "#0f172a",
-    padding: "24px",
-    boxSizing: "border-box",
-};
-
-const navigationBarContainer: React.CSSProperties = {
-    width: "100%",
-    maxWidth: 1100,
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "flex-end",
-    boxSizing: "border-box",
-};
-
-const navigationButtonGroup: React.CSSProperties = {
-    display: "flex",
-    gap: 12,
-};
-
-const navigationBarButtons: React.CSSProperties = {
-    border: "1px solid rgba(15,23,42,0.08)",
-    boxShadow: "0 10px 15px rgba(2,6,15,0.08)",
-    padding: "8px 14px",
-    borderRadius: 8,
-    background: "white",
-    cursor: "pointer",
-    fontWeight: 600,
-};
-
-const mainLogo: React.CSSProperties = {
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "center",
-    marginTop: 16,
-    marginBottom: 8,
-    flexDirection: "column",
-};
-
-const logoImage: React.CSSProperties = {
-    display: "block",
-    maxWidth: "100%",
-    height: "auto",
-};
-
-const contentPanel: React.CSSProperties = {
-    flex: 1,
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "center",
-    width: "100%",
-};
-
-const contentPanelWrapper: React.CSSProperties = {
-    width: "100%",
-    maxWidth: 760,
-    padding: 24,
-    boxSizing: "border-box",
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "center",
-    position: "relative",
-};
-
-const contentColumnLayout: React.CSSProperties = {
-    display: "flex",
-    flexDirection: "column",
-    alignItems: "center",
-    justifyContent: "center",
-    width: "100%",
-};
-
-const contentTextCard: React.CSSProperties = {
-    width: "100%",
-    background: "white",
-    borderRadius: 12,
-    boxShadow: "0 10px 30px rgba(2,6,23,0.08)",
-    padding: "28px 48px",
-    boxSizing: "border-box",
-    textAlign: "center",
-    minHeight: 160,
-    display: "flex",
-    flexDirection: "column",
-    alignItems: "center",
-    justifyContent: "center",
-    transition: "transform 300ms ease, opacity 300ms ease",
-};
-
-const carouselDots: React.CSSProperties = {
-    display: "flex",
-    gap: 10,
-    marginTop: 12,
-    justifyContent: "center",
-    alignItems: "center",
-};
-
-const dotStyle: React.CSSProperties = {
-    width: 14,
-    height: 14,
-    borderRadius: "50%",
-    background: "white",
-    border: "1px solid #cbd5e1",
-    transition: "background 200ms, transform 200ms",
-    cursor: "pointer",
-};
-
-const selectedDotStyle: React.CSSProperties = {
-    background: "#0f172a",
-    border: "1px solid rgba(0,0,0,0.05)",
-    transform: "scale(1.05)",
-};
-
-const arrowButtonBaseStyle: React.CSSProperties = {
-    position: "absolute",
-    top: "50%",
-    transform: "translateY(-75%)",
-    width: 44,
-    height: 44,
-    fontSize: 20, //triangle size
-    borderRadius: 15,
-    border: "none",
-    background: "rgba(15,23,42,0.06)",
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "center",
-    cursor: "pointer",
-};
-
-const leftArrow: React.CSSProperties = {
-    ...arrowButtonBaseStyle,
-    left: -30,
-};
-
-const rightArrow: React.CSSProperties = {
-    ...arrowButtonBaseStyle,
-    right: -30,
-};
-
-const getStartedButton: React.CSSProperties = {
-    marginTop: 28,
-    marginBottom: 8,
-    width: 220,
-    padding: "12px 18px",
-    borderRadius: 700,
-    border: "none",
-    background: "linear-gradient(105deg,#E76D48,#FDD700)",
-    color: "black",
-    fontWeight: 800,
-    cursor: "pointer",
-    boxShadow: "0 10px 30px rgba(2,6,23,0.08)",
-};
-
-const titleStyle: React.CSSProperties = {
-    fontSize: 20,
-    fontWeight: 700,
-    marginBottom: 8,
-};
-
-const bodyStyle: React.CSSProperties = {
-    fontSize: 15,
-    color: "#334155",
-    lineHeight: 1.4,
-    maxWidth: 540,
-};
-
-const bottomPageMargin: React.CSSProperties = {
-    height: 24,
-};
-
 const LandingPage: React.FC = () => {
     const [index, setIndex] = useState(0);
+    const [isAnimating, setIsAnimating] = useState(false);
 
-    const prev = () => setIndex((i) => (i - 1 + texts.length) % texts.length);
-    const next = () => setIndex((i) => (i + 1) % texts.length);
+    const changeSlide = (newIndex: number) => {
+        setIsAnimating(true);
+        setTimeout(() => {
+            setIndex(newIndex);
+            setIsAnimating(false);
+        }, 300);
+    };
+
+    const prev = () => changeSlide((index - 1 + texts.length) % texts.length);
+    const next = () => changeSlide((index + 1) % texts.length);
+
+    // Auto-scroll through slides every 8 seconds
+    useEffect(() => {
+        const interval = setInterval(() => {
+            changeSlide((index + 1) % texts.length);
+        }, 8000);
+
+        return () => clearInterval(interval);
+    }, [index]);
 
     return (
-        <div style={pageLayout}>
-            <nav style={navigationBarContainer}>
-                <div style={{ ...navigationButtonGroup }}>
-                    <button
-                        style={{ ...navigationBarButtons }}
-                        onClick={() => {
-                            // to be implemented to redirect to register page
-                            console.log("Register clicked");
-                        }}
-                    >
-                        Register
-                    </button>
-                    <button
-                        style={{ ...navigationBarButtons }}
-                        onClick={() => {
-                            console.log("Login clicked");
-                        }}
-                    >
-                        Login
-                    </button>
+        <div className="flex flex-col bg-white text-slate-900 overflow-hidden" style={{ height: 'calc(100vh - 80px)' }}>
+            <div className="flex-1 flex flex-col items-center justify-center px-6 py-8 box-border">
+                {/* Logo */}
+                <div className="mb-10">
+                    <img
+                        src="/FareShare_Logo.png"
+                        alt="FareShare Logo"
+                        className="h-40 md:h-48 lg:h-56"
+                    />
                 </div>
-            </nav>
 
-            <div style={mainLogo}>
-                <img src={logoImg} alt="FareShare logo" style={logoImage} />
-            </div>
-
-            <div style={contentPanel}>
-                <div style={contentPanelWrapper}>
+                <div className="w-full max-w-[760px] p-6 box-border flex items-center justify-center relative">
                     <button
                         aria-label="Previous"
                         onClick={prev}
-                        style={leftArrow}
                         title="Previous"
+                        className="absolute top-1/2 -translate-y-3/4 left-[-30px] w-11 h-11 text-xl rounded-[15px] border-none bg-slate-900/6 flex items-center justify-center cursor-pointer hover:bg-slate-900/10 transition-colors"
                     >
                         ◀
                     </button>
 
-                    <div style={contentColumnLayout}>
-                        <div style={contentTextCard}>
+                    <div className="flex flex-col items-center justify-center w-full">
+                        <div className="w-full bg-white rounded-xl shadow-[0_10px_30px_rgba(2,6,23,0.08)] py-10 px-12 box-border text-center min-h-[220px] flex flex-col items-center justify-center overflow-hidden">
                             <div
-                                style={{
-                                    opacity: 1,
-                                    transform: "translateY(0)",
-                                    transition: "opacity 300ms, transform 300ms",
-                                }}
+                                className={`transition-all duration-500 ease-in-out ${
+                                    isAnimating 
+                                        ? 'opacity-0 -translate-x-8' 
+                                        : 'opacity-100 translate-x-0'
+                                }`}
                                 key={index}
                             >
-                                <div style={titleStyle}>{texts[index].title}</div>
-                                <div style={bodyStyle}>{texts[index].body}</div>
+                                <div className="text-3xl md:text-4xl font-bold mb-4">{texts[index].title}</div>
+                                <div className="text-lg md:text-xl text-slate-700 leading-[1.6] max-w-[640px]">{texts[index].body}</div>
                             </div>
                         </div>
 
                         {/* indicator bubbles below the panel */}
-                        <div style={carouselDots}>
+                        <div className="flex gap-2.5 mt-3 justify-center items-center">
                             {texts.map((_, i) => (
                                 <div
                                     key={i}
                                     role="button"
                                     aria-label={`Show slide ${i + 1}`}
                                     aria-current={i === index ? "true" : "false"}
-                                    onClick={() => setIndex(i)}
-                                    style={{
-                                        ...dotStyle,
-                                        ...(i === index ? selectedDotStyle : {}),
-                                    }}
+                                    onClick={() => changeSlide(i)}
+                                    className={`w-3.5 h-3.5 rounded-full border transition-[background,transform] duration-200 cursor-pointer ${
+                                        i === index
+                                            ? "bg-slate-900 border-black/5 scale-105"
+                                            : "bg-white border-slate-300"
+                                    }`}
                                 />
                             ))}
                         </div>
@@ -277,26 +102,13 @@ const LandingPage: React.FC = () => {
                     <button
                         aria-label="Next"
                         onClick={next}
-                        style={rightArrow}
                         title="Next"
+                        className="absolute top-1/2 -translate-y-3/4 right-[-30px] w-11 h-11 text-xl rounded-[15px] border-none bg-slate-900/6 flex items-center justify-center cursor-pointer hover:bg-slate-900/10 transition-colors"
                     >
                         ▶
                     </button>
                 </div>
             </div>
-
-            <div style={{ display: "flex", width: "100%", justifyContent: "center" }}>
-                <button
-                    style={getStartedButton}
-                    onClick={() => {
-                        console.log("Get started clicked");
-                    }}
-                >
-                    Get Started
-                </button>
-            </div>
-
-            <div style={bottomPageMargin} />
         </div>
     );
 };
