@@ -1,6 +1,5 @@
-import RidePostAndRequestPage from "./pages/RidePostAndRequestPage";
+import UserSettingsPage from "./pages/UserSettingsPage";
 
 export default function App() {
-  return <RidePostAndRequestPage />;
+  return <UserSettingsPage />;
 }
-
