@@ -1,25 +1,24 @@
 import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
-
-type ApiError = {
-  message?: string;
-  details?: Record<string, string[]>;
-};
+import { useAuth } from "../hooks/useAuth";
+import { ApiClientError } from "../utils/api";
+import { motion } from "framer-motion";
+import { User, Mail, Lock, Eye, EyeOff, AlertCircle, ArrowLeft } from "lucide-react";
 
 export default function SignUp() {
   const navigate = useNavigate();
-  const [username, setUsername] = useState("");
+  const { register } = useAuth();
+  
+  const [fullName, setFullName] = useState("");
   const [password, setPassword] = useState("");
   const [email, setEmail] = useState("");
-  const [firstName, setFirstName] = useState("");
-  const [lastName, setLastName] = useState("");
-  const [role, setRole] = useState<"passenger" | "driver">("passenger");
   const [showPassword, setShowPassword] = useState(false);
   const [errors, setErrors] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
 
   function validate() {
-    if (!username.trim()) return "Username is required";
+    if (!fullName.trim()) return "Full name is required";
+    if (fullName.trim().length < 2) return "Full name must be at least 2 characters";
     if (!email.trim()) return "Email is required";
     const emailRe = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRe.test(email)) return "Enter a valid email address";
@@ -39,88 +38,139 @@ export default function SignUp() {
     setErrors(null);
 
     try {
-      // send registration to backend - endpoint configurable via Vite env
-      const resp = await fetch(import.meta.env.VITE_API_BASE_URL?.toString() ?? "/auth/signup", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ username, password, email, first_name: firstName, last_name: lastName, role }),
+      // Register user using auth context
+      await register({
+        full_name: fullName,
+        email: email,
+        password: password,
       });
-
-      if (resp.ok) {
-        navigate("/signup/success", { replace: true });
-        return;
+      
+      // Navigate to success page
+      navigate("/signup/success", { replace: true });
+    } catch (error) {
+      // Handle API errors
+      if (error instanceof ApiClientError) {
+        setErrors(error.detail);
+      } else {
+        setErrors("Registration failed. Please try again.");
       }
-
-      const data: ApiError = await resp.json().catch(() => ({}));
-      if (data && data.message) setErrors(data.message);
-      else setErrors("Registration failed. Please check your input.");
-    } catch (err) {
-      setErrors("Network error. Please try again.");
     } finally {
       setSubmitting(false);
     }
   }
 
   return (
-    <div className="min-h-screen bg-white p-4 flex flex-col items-center">
-      <div className="w-full max-w-md">
-        <div className="flex items-center mb-4">
-          <Link to="/signin" className="text-sm text-gray-700 mr-3">&lt; Back</Link>
-          <img src="/fare-share-logo.png" alt="FareShare" className="h-16 mx-auto" />
+    <div className="px-4 py-6 flex flex-col items-center justify-center overflow-hidden" style={{ height: 'calc(100vh - 80px)', backgroundColor: 'var(--color-background-warm)' }}>
+      <motion.div 
+        className="w-full max-w-md"
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5 }}
+      >
+        <div className="flex items-center justify-between mb-6">
+          <Link 
+            to="/signin" 
+            className="text-sm font-medium transition-colors flex items-center gap-1" 
+            style={{ color: '#4a5568' }}
+            onMouseEnter={(e) => e.currentTarget.style.color = 'var(--color-primary)'} 
+            onMouseLeave={(e) => e.currentTarget.style.color = '#4a5568'}
+          >
+            <ArrowLeft size={16} />
+            Back
+          </Link>
+          <h2 className="text-2xl font-bold" style={{ color: 'var(--color-primary)' }}>Registration</h2>
+          <div style={{ width: '60px' }}></div>
         </div>
 
-        <h2 className="text-center text-xl font-semibold mb-4">Registration</h2>
-
         {errors && (
-          <div className="mb-4 p-3 bg-red-50 border border-red-200 text-sm text-red-800 rounded">{errors}</div>
+          <motion.div 
+            className="mb-4 p-3 text-sm text-white rounded-lg flex items-center gap-2" 
+            style={{ backgroundColor: 'rgba(var(--color-primary-rgb), 0.9)' }}
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+          >
+            <AlertCircle size={18} />
+            {errors}
+          </motion.div>
         )}
 
-        <form onSubmit={handleSubmit} className="space-y-3 bg-gray-50 p-4 rounded">
+        <form onSubmit={handleSubmit} className="space-y-4 bg-white rounded-xl shadow-[0_10px_30px_rgba(252,74,26,0.12)] p-6">
           <div>
-            <label className="block text-sm font-medium text-gray-700">Username</label>
-            <input value={username} onChange={(e) => setUsername(e.target.value)} placeholder="Username" className="mt-1 block w-full border-b-2 border-gray-300 py-2 outline-none" />
+            <label className="text-sm font-semibold mb-1 flex items-center gap-1" style={{ color: 'var(--color-primary)' }}>
+              <User size={16} />
+              Full Name
+            </label>
+            <input 
+              value={fullName} 
+              onChange={(e) => setFullName(e.target.value)} 
+              placeholder="John Doe" 
+              className="mt-1 block w-full border-b-2 py-2 px-1 outline-none transition-colors" 
+              style={{ borderBottomColor: 'var(--color-secondary)' }}
+              onFocus={(e) => e.currentTarget.style.borderBottomColor = 'var(--color-primary)'} 
+              onBlur={(e) => e.currentTarget.style.borderBottomColor = 'var(--color-secondary)'} 
+            />
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700">Password</label>
+            <label className="text-sm font-semibold mb-1 flex items-center gap-1" style={{ color: 'var(--color-primary)' }}>
+              <Mail size={16} />
+              Email Address
+            </label>
+            <input 
+              value={email} 
+              onChange={(e) => setEmail(e.target.value)} 
+              type="email" 
+              placeholder="john@example.com" 
+              className="mt-1 block w-full border-b-2 py-2 px-1 outline-none transition-colors" 
+              style={{ borderBottomColor: 'var(--color-secondary)' }}
+              onFocus={(e) => e.currentTarget.style.borderBottomColor = 'var(--color-primary)'} 
+              onBlur={(e) => e.currentTarget.style.borderBottomColor = 'var(--color-secondary)'} 
+            />
+          </div>
+
+          <div>
+            <label className="text-sm font-semibold mb-1 flex items-center gap-1" style={{ color: 'var(--color-primary)' }}>
+              <Lock size={16} />
+              Password
+            </label>
             <div className="relative">
-              <input value={password} onChange={(e) => setPassword(e.target.value)} type={showPassword ? "text" : "password"} placeholder="Password" className="mt-1 block w-full border-b-2 border-gray-300 py-2 outline-none pr-12" />
-              <button type="button" onClick={() => setShowPassword((s) => !s)} className="absolute right-2 top-1/2 -translate-y-1/2 text-sm text-gray-600">{showPassword ? "Hide" : "Show"}</button>
+              <input 
+                value={password} 
+                onChange={(e) => setPassword(e.target.value)} 
+                type={showPassword ? "text" : "password"} 
+                placeholder="Minimum 8 characters" 
+                className="mt-1 block w-full border-b-2 py-2 px-1 outline-none pr-16 transition-colors" 
+                style={{ borderBottomColor: 'var(--color-secondary)' }}
+                onFocus={(e) => e.currentTarget.style.borderBottomColor = 'var(--color-primary)'} 
+                onBlur={(e) => e.currentTarget.style.borderBottomColor = 'var(--color-secondary)'} 
+              />
+              <motion.button 
+                type="button" 
+                onClick={() => setShowPassword((s) => !s)} 
+                className="absolute right-2 top-1/2 -translate-y-1/2 text-sm font-medium flex items-center gap-1" 
+                style={{ color: 'var(--color-accent)' }}
+                whileHover={{ scale: 1.1 }}
+                whileTap={{ scale: 0.95 }}
+              >
+                {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+              </motion.button>
             </div>
           </div>
 
-          <div>
-            <label className="block text-sm font-medium text-gray-700">Email Address</label>
-            <input value={email} onChange={(e) => setEmail(e.target.value)} type="email" placeholder="Email Address" className="mt-1 block w-full border-b-2 border-gray-300 py-2 outline-none" />
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium text-gray-700">First Name</label>
-            <input value={firstName} onChange={(e) => setFirstName(e.target.value)} placeholder="First Name" className="mt-1 block w-full border-b-2 border-gray-300 py-2 outline-none" />
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium text-gray-700">Last Name</label>
-            <input value={lastName} onChange={(e) => setLastName(e.target.value)} placeholder="Last Name" className="mt-1 block w-full border-b-2 border-gray-300 py-2 outline-none" />
-          </div>
-
-          <div className="bg-white p-3 rounded mt-2">
-            <div className="flex items-center mb-2">
-              <input id="role-passenger" name="role" type="radio" checked={role === "passenger"} onChange={() => setRole("passenger")} className="mr-2" />
-              <label htmlFor="role-passenger" className="text-sm">I will be a passenger</label>
-            </div>
-            <div className="flex items-center">
-              <input id="role-driver" name="role" type="radio" checked={role === "driver"} onChange={() => setRole("driver")} className="mr-2" />
-              <label htmlFor="role-driver" className="text-sm">I will be a driver</label>
-            </div>
-            <p className="text-xs text-gray-500 mt-2">(This can be updated later)</p>
-          </div>
-
-          <div>
-            <button type="submit" disabled={submitting} className="w-full bg-white border border-gray-700 rounded py-3 font-medium shadow">Submit</button>
+          <div className="pt-2">
+            <motion.button 
+              type="submit" 
+              disabled={submitting} 
+              className="w-full text-white rounded-lg py-3 font-semibold shadow-md disabled:bg-gray-400 disabled:cursor-not-allowed transition-all duration-200 hover:shadow-lg transform hover:-translate-y-0.5" 
+              style={{ backgroundColor: submitting ? undefined : 'var(--color-primary)' }}
+              whileHover={{ scale: submitting ? 1 : 1.02 }}
+              whileTap={{ scale: submitting ? 1 : 0.98 }}
+            >
+              {submitting ? "Submitting..." : "Submit"}
+            </motion.button>
           </div>
         </form>
-      </div>
+      </motion.div>
     </div>
   );
 }

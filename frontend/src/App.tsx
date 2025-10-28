@@ -1,4 +1,5 @@
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import { AuthProvider } from "./context/AuthContext";
 import Header from "./components/Header";
 import LandingPage from "./pages/LandingPage";
 import SignUp from "./pages/SignUp";
@@ -10,18 +11,20 @@ import Ridesearch from "./pages/Ridesearch";
 
 function App() {
   return (
-    <Router>
-      <Header />
-      <Routes>
-        <Route path="/" element={<LandingPage />} />
-        <Route path="/signin" element={<SignIn />} />
-        <Route path="/signup" element={<SignUp />} />
-        <Route path="/signup/success" element={<SignUpSuccess />} />
-        <Route path="/rides" element={<RidePostAndRequestPage />} />
-        <Route path="/ridesearch" element={<Ridesearch />} />
-        <Route path="/settings" element={<UserSettingsPage />} />
-      </Routes>
-    </Router>
+    <AuthProvider>
+      <Router>
+        <Header />
+        <Routes>
+          <Route path="/" element={<LandingPage />} />
+          <Route path="/signin" element={<SignIn />} />
+          <Route path="/signup" element={<SignUp />} />
+          <Route path="/signup/success" element={<SignUpSuccess />} />
+          <Route path="/rides" element={<RidePostAndRequestPage />} />
+          <Route path="/ridesearch" element={<Ridesearch />} />
+          <Route path="/settings" element={<UserSettingsPage />} />
+        </Routes>
+      </Router>
+    </AuthProvider>
   );
 }
 
