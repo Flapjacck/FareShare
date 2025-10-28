@@ -1,5 +1,18 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
+import { motion } from "framer-motion";
+import { 
+  MapPin, 
+  Calendar, 
+  Users, 
+  DollarSign, 
+  Search,
+  ArrowRight,
+  Star,
+  Loader2,
+  AlertCircle,
+  Filter
+} from "lucide-react";
 
 type Ride = {
   id: string;
@@ -13,7 +26,6 @@ type Ride = {
 
 export default function RidePostAndRequestPage() {
   // Filters
-  const [mode, setMode] = useState<"find" | "post">("find");
   const [origin, setOrigin] = useState("");
   const [destination, setDestination] = useState("");
   const [date, setDate] = useState("");
@@ -31,9 +43,6 @@ export default function RidePostAndRequestPage() {
 
   // Debounce timer id
   const [debounceKey, setDebounceKey] = useState(0);
-
-  // Build query params (memoized)
-  const query = useMemo(() => ({ origin, destination, date, seats, maxPrice, page }), [origin, destination, date, seats, maxPrice, page]);
 
   // Trigger search with debounce
   useEffect(() => {
@@ -112,92 +121,237 @@ export default function RidePostAndRequestPage() {
     setPage(1);
   }
 
-  // wireframe top toggle: rider/driver
   return (
-    <div className="min-h-screen bg-white p-4">
-      <div className="max-w-2xl mx-auto">
-        {/* Header with toggle */}
-        <div className="flex items-center justify-between mb-4">
-          <img src="/fare-share-logo.png" alt="FareShare" className="h-12" />
-          <div className="text-sm text-gray-700">Account</div>
-        </div>
-
-        <div className="flex gap-2 mb-4">
-          <button onClick={() => setMode("find")} className={`flex-1 py-3 rounded border ${mode === "find" ? "bg-gray-200 shadow" : "bg-white"}`}>
-            Find a trip
-          </button>
-          <button onClick={() => setMode("post")} className={`flex-1 py-3 rounded border ${mode === "post" ? "bg-gray-200 shadow" : "bg-white"}`}>
-            Post a trip
-          </button>
-        </div>
-
+    <div className="overflow-y-auto p-4" style={{ height: 'calc(100vh - 80px)', backgroundColor: 'var(--color-background-warm)' }}>
+      <div className="max-w-5xl mx-auto">
         {/* Search area */}
-        <div className="bg-gray-50 p-4 rounded mb-4">
+        <motion.div 
+          className="p-4 rounded mb-4" 
+          style={{ backgroundColor: 'white', border: '1px solid var(--color-secondary)' }}
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.4 }}
+        >
+          <div className="flex items-center gap-2 mb-4">
+            <Filter size={20} style={{ color: 'var(--color-primary)' }} />
+            <h2 className="text-lg font-semibold" style={{ color: 'var(--color-primary)' }}>Search Filters</h2>
+          </div>
+          
           <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
             <div>
-              <label className="text-xs text-gray-600">Origin</label>
-              <input value={origin} onChange={(e) => { setOrigin(e.target.value); resetPagination(); }} className="mt-1 w-full border rounded p-2" placeholder="Where from?" />
+              <label className="text-xs font-medium flex items-center gap-1" style={{ color: 'var(--color-primary)' }}>
+                <MapPin size={14} />
+                Origin
+              </label>
+              <input 
+                value={origin} 
+                onChange={(e) => { setOrigin(e.target.value); resetPagination(); }} 
+                className="mt-1 w-full rounded p-2 focus:outline-none focus:ring-2" 
+                style={{ border: '1px solid var(--color-secondary)' }}
+                placeholder="Where from?" 
+              />
             </div>
             <div>
-              <label className="text-xs text-gray-600">Destination</label>
-              <input value={destination} onChange={(e) => { setDestination(e.target.value); resetPagination(); }} className="mt-1 w-full border rounded p-2" placeholder="Where to?" />
+              <label className="text-xs font-medium flex items-center gap-1" style={{ color: 'var(--color-primary)' }}>
+                <MapPin size={14} style={{ color: 'var(--color-accent)' }} />
+                Destination
+              </label>
+              <input 
+                value={destination} 
+                onChange={(e) => { setDestination(e.target.value); resetPagination(); }} 
+                className="mt-1 w-full rounded p-2 focus:outline-none focus:ring-2" 
+                style={{ border: '1px solid var(--color-secondary)' }}
+                placeholder="Where to?" 
+              />
             </div>
             <div>
-              <label className="text-xs text-gray-600">Travel Date</label>
-              <input value={date} onChange={(e) => { setDate(e.target.value); resetPagination(); }} type="date" className="mt-1 w-full border rounded p-2" />
+              <label className="text-xs font-medium flex items-center gap-1" style={{ color: 'var(--color-primary)' }}>
+                <Calendar size={14} />
+                Travel Date
+              </label>
+              <input 
+                value={date} 
+                onChange={(e) => { setDate(e.target.value); resetPagination(); }} 
+                type="date" 
+                className="mt-1 w-full rounded p-2 focus:outline-none focus:ring-2" 
+                style={{ border: '1px solid var(--color-secondary)' }}
+              />
             </div>
             <div>
-              <label className="text-xs text-gray-600">Seats</label>
-              <select value={seats} onChange={(e) => { setSeats(Number(e.target.value)); resetPagination(); }} className="mt-1 w-full border rounded p-2">
+              <label className="text-xs font-medium flex items-center gap-1" style={{ color: 'var(--color-primary)' }}>
+                <Users size={14} />
+                Seats
+              </label>
+              <select 
+                value={seats} 
+                onChange={(e) => { setSeats(Number(e.target.value)); resetPagination(); }} 
+                className="mt-1 w-full rounded p-2 focus:outline-none focus:ring-2" 
+                style={{ border: '1px solid var(--color-secondary)' }}
+              >
                 {[1,2,3,4,5].map(n => <option key={n} value={n}>{n} seat{n>1?"s":""}</option>)}
               </select>
             </div>
             <div>
-              <label className="text-xs text-gray-600">Max Price ($)</label>
-              <input value={maxPrice} onChange={(e) => { const v = e.target.value; setMaxPrice(v === "" ? "" : Number(v)); resetPagination(); }} type="number" min={0} className="mt-1 w-full border rounded p-2" />
+              <label className="text-xs font-medium flex items-center gap-1" style={{ color: 'var(--color-primary)' }}>
+                <DollarSign size={14} />
+                Max Price ($)
+              </label>
+              <input 
+                value={maxPrice} 
+                onChange={(e) => { const v = e.target.value; setMaxPrice(v === "" ? "" : Number(v)); resetPagination(); }} 
+                type="number" 
+                min={0} 
+                className="mt-1 w-full rounded p-2 focus:outline-none focus:ring-2" 
+                style={{ border: '1px solid var(--color-secondary)' }}
+              />
             </div>
             <div className="flex items-end">
-              <button onClick={() => { setPage(1); setDebounceKey(k=>k+1); }} className="w-full bg-blue-600 text-white py-2 rounded">Search</button>
+              <motion.button 
+                onClick={() => { setPage(1); setDebounceKey(k=>k+1); }} 
+                className="w-full text-white py-2 rounded font-semibold transition-opacity hover:opacity-90 flex items-center justify-center gap-2"
+                style={{ backgroundColor: 'var(--color-primary)' }}
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
+              >
+                <Search size={18} />
+                Search
+              </motion.button>
             </div>
           </div>
-        </div>
+        </motion.div>
 
         {/* Results / empty / error */}
-        <div className="mb-4">
-          {loading && <div className="p-6 text-center">Loading results…</div>}
-          {error && <div className="p-4 bg-red-50 text-red-700 rounded">{error}</div>}
+        <motion.div 
+          className="mb-4"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 0.5, delay: 0.2 }}
+        >
+          {loading && (
+            <div className="p-6 text-center flex items-center justify-center gap-2" style={{ color: 'var(--color-primary)' }}>
+              <Loader2 size={20} className="animate-spin" />
+              Loading results…
+            </div>
+          )}
+          
+          {error && (
+            <motion.div 
+              className="p-4 rounded text-white flex items-center gap-2" 
+              style={{ backgroundColor: 'rgba(var(--color-primary-rgb), 0.8)' }}
+              initial={{ scale: 0.9 }}
+              animate={{ scale: 1 }}
+            >
+              <AlertCircle size={20} />
+              {error}
+            </motion.div>
+          )}
 
           {!loading && !error && results.length === 0 && (
-            <div className="p-6 text-center text-gray-600">No trips found. Try adjusting your filters.</div>
+            <motion.div 
+              className="p-6 text-center flex flex-col items-center gap-2" 
+              style={{ color: '#718096' }}
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+            >
+              <Search size={40} style={{ color: 'var(--color-accent)' }} />
+              <p>No trips found. Try adjusting your filters.</p>
+            </motion.div>
           )}
 
           <ul className="space-y-3">
-            {results.map(r => (
-              <li key={r.id} className="border rounded p-3 flex justify-between items-center">
+            {results.map((r, index) => (
+              <motion.li 
+                key={r.id} 
+                className="rounded p-3 flex justify-between items-center bg-white cursor-pointer"
+                style={{ border: '1px solid var(--color-secondary)' }}
+                initial={{ opacity: 0, x: -20 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ delay: index * 0.1 }}
+                whileHover={{ 
+                  scale: 1.01,
+                  boxShadow: '0 4px 12px rgba(252, 74, 26, 0.15)',
+                  borderColor: 'var(--color-primary)'
+                }}
+              >
                 <div>
-                  <div className="font-semibold">{r.from} → {r.to}</div>
-                  <div className="text-sm text-gray-600">Departing: {new Date(r.depart_at).toLocaleString()}</div>
-                  <div className="text-sm text-gray-600">Seats: {r.seats_available} • Rating: {r.driver_rating?.toFixed(1) ?? "N/A"}</div>
-                </div>
-                <div className="text-right">
-                  <div className="text-lg font-bold">${r.price.toFixed(2)}</div>
-                  <div className="mt-2">
-                    <Link to={`/trip/${r.id}`} className="text-sm text-blue-600 underline">View</Link>
+                  <div className="font-semibold flex items-center gap-2" style={{ color: 'var(--color-primary)' }}>
+                    <MapPin size={16} />
+                    {r.from} → {r.to}
+                  </div>
+                  <div className="text-sm flex items-center gap-2 mt-1" style={{ color: '#718096' }}>
+                    <Calendar size={14} />
+                    Departing: {new Date(r.depart_at).toLocaleString()}
+                  </div>
+                  <div className="text-sm flex items-center gap-2 mt-1" style={{ color: '#718096' }}>
+                    <Users size={14} />
+                    Seats: {r.seats_available} • 
+                    <Star size={14} style={{ fill: 'var(--color-secondary)', color: 'var(--color-secondary)' }} />
+                    Rating: {r.driver_rating?.toFixed(1) ?? "N/A"}
                   </div>
                 </div>
-              </li>
+                <div className="text-right">
+                  <div className="text-lg font-bold flex items-center gap-1 justify-end" style={{ color: 'var(--color-primary)' }}>
+                    <DollarSign size={18} />
+                    {r.price.toFixed(2)}
+                  </div>
+                  <div className="mt-2">
+                    <Link 
+                      to={`/trip/${r.id}`} 
+                      className="text-sm underline flex items-center gap-1 justify-end transition-colors hover:opacity-80"
+                      style={{ color: 'var(--color-accent)' }}
+                    >
+                      View Details
+                      <ArrowRight size={14} />
+                    </Link>
+                  </div>
+                </div>
+              </motion.li>
             ))}
           </ul>
-        </div>
+        </motion.div>
 
         {/* Pagination */}
-        <div className="flex items-center justify-between">
-          <div className="text-sm text-gray-600">Page {page} of {totalPages}</div>
-          <div className="flex gap-2">
-            <button onClick={() => setPage(p => Math.max(1, p-1))} disabled={page <= 1} className="px-3 py-1 border rounded disabled:opacity-50">Prev</button>
-            <button onClick={() => setPage(p => Math.min(totalPages, p+1))} disabled={page >= totalPages} className="px-3 py-1 border rounded disabled:opacity-50">Next</button>
+        <motion.div 
+          className="flex items-center justify-between"
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, delay: 0.3 }}
+        >
+          <div className="text-sm flex items-center gap-2" style={{ color: '#718096' }}>
+            <Filter size={14} style={{ color: 'var(--color-accent)' }} />
+            Page {page} of {totalPages}
           </div>
-        </div>
+          <div className="flex gap-2">
+            <motion.button 
+              onClick={() => setPage(p => Math.max(1, p-1))} 
+              disabled={page <= 1} 
+              className="px-3 py-1 rounded disabled:opacity-50 transition-opacity hover:opacity-90"
+              style={{ 
+                border: '1px solid var(--color-secondary)',
+                backgroundColor: 'white',
+                color: 'var(--color-primary)'
+              }}
+              whileHover={{ scale: page > 1 ? 1.05 : 1 }}
+              whileTap={{ scale: page > 1 ? 0.95 : 1 }}
+            >
+              Prev
+            </motion.button>
+            <motion.button 
+              onClick={() => setPage(p => Math.min(totalPages, p+1))} 
+              disabled={page >= totalPages} 
+              className="px-3 py-1 rounded disabled:opacity-50 transition-opacity hover:opacity-90"
+              style={{ 
+                border: '1px solid var(--color-secondary)',
+                backgroundColor: 'white',
+                color: 'var(--color-primary)'
+              }}
+              whileHover={{ scale: page < totalPages ? 1.05 : 1 }}
+              whileTap={{ scale: page < totalPages ? 0.95 : 1 }}
+            >
+              Next
+            </motion.button>
+          </div>
+        </motion.div>
       </div>
     </div>
   );

@@ -85,8 +85,21 @@ class UserResponse(BaseModel):
     vehicle_color: Optional[str] = None
     vehicle_license_plate: Optional[str] = None
     
-    # Pydantic v2: enable loading from ORM model attributes
-    model_config = {"from_attributes": True}
+    # Pydantic v2: enable loading from ORM model attributes and serialize UUIDs as strings
+    model_config = {
+        "from_attributes": True,
+        "json_encoders": {
+            # This isn't needed in Pydantic v2, but we add field serializer below
+        }
+    }
+    
+    @field_validator('id', mode='before')
+    @classmethod
+    def convert_uuid_to_str(cls, v):
+        """Convert UUID to string if needed"""
+        if v is not None and not isinstance(v, str):
+            return str(v)
+        return v
 
 
 class UserProfileUpdate(BaseModel):

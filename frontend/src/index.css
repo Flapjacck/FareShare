@@ -24,3 +24,16 @@
 * {
     font-family: 'Nunito', sans-serif;
 }
+
+/* Focus ring styling for inputs */
+input:focus,
+textarea:focus,
+select:focus {
+    --tw-ring-color: var(--color-accent);
+}
+
+html,
+body,
+#root {
+    height: 100%;
+}
