@@ -11,20 +11,94 @@ on:
 jobs:
   test:
     runs-on: ubuntu-latest
+    
+    # Set up PostgreSQL with PostGIS for database testing
+    services:
+      postgres:
+        image: postgis/postgis:15-3.3
+        env:
+          POSTGRES_USER: test_user
+          POSTGRES_PASSWORD: test_password
+          POSTGRES_DB: test_fareshare
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 5432:5432
+    
     defaults:
       run:
         working-directory: backend
+    
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
+      
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
           python-version: '3.11'
+          cache: 'pip'
+      
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
           pip install -r requirements.txt
+      
+      - name: Set up environment variables
+        run: |
+          echo "DATABASE_URL=postgresql://test_user:test_password@localhost:5432/test_fareshare" >> $GITHUB_ENV
+      
+      - name: Create uploads directory
+        run: |
+          mkdir -p uploads/avatars
+      
+      - name: Run server health check
+        run: |
+          # Start the server in the background
+          uvicorn app:app --host 0.0.0.0 --port 8000 &
+          SERVER_PID=$!
+          
+          # Wait for server to start
+          echo "Waiting for server to start..."
+          for i in {1..30}; do
+            if curl -s http://localhost:8000/health > /dev/null; then
+              echo "Server is up!"
+              break
+            fi
+            echo "Attempt $i: Server not ready yet..."
+            sleep 2
+          done
+          
+          # Test health endpoint
+          echo "Testing health endpoint..."
+          HEALTH_RESPONSE=$(curl -s http://localhost:8000/health)
+          echo "Health response: $HEALTH_RESPONSE"
+          
+          # Test root endpoint
+          echo "Testing root endpoint..."
+          ROOT_RESPONSE=$(curl -s http://localhost:8000/)
+          echo "Root response: $ROOT_RESPONSE"
+          
+          # Test API test endpoint
+          echo "Testing /api/test endpoint..."
+          TEST_RESPONSE=$(curl -s http://localhost:8000/api/test)
+          echo "Test response: $TEST_RESPONSE"
+          
+          # Kill the server
+          kill $SERVER_PID
+          
+          # Verify health check was successful
+          if echo "$HEALTH_RESPONSE" | grep -q "healthy"; then
+            echo "✅ Server health check passed!"
+            exit 0
+          else
+            echo "❌ Server health check failed!"
+            exit 1
+          fi
+      
       - name: Run tests
         run: |
-          pytest || echo "No tests found."
+          pytest -v || echo "No tests found or tests skipped."
