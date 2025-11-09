@@ -3,6 +3,7 @@ import { useState, useRef, useEffect } from "react";
 import { useAuth } from "../hooks/useAuth";
 import { motion, AnimatePresence } from "framer-motion";
 import { Settings, LogOut, Car, Search } from "lucide-react";
+import { Link } from "react-router-dom";
 
 const Header: React.FC = () => {
     const navigate = useNavigate();
@@ -127,9 +128,13 @@ const Header: React.FC = () => {
                                     >
                                         {/* User info */}
                                         <div className="px-4 py-2 border-b" style={{ borderBottomColor: 'var(--color-secondary)' }}>
-                                            <p className="font-semibold text-sm truncate" style={{ color: 'var(--color-primary)' }}>
-                                                {user?.full_name || 'User'}
-                                            </p>
+                                            <Link
+                                                to="/dashboard"
+                                                className="font-semibold text-sm truncate block hover:underline"
+                                                style={{ color: "var(--color-primary)", textDecorationColor: "var(--color-primary)" }}
+                                            >
+                                                {user?.full_name || "User"}
+                                            </Link>
                                             <p className="text-xs text-gray-500 truncate">
                                                 {user?.email}
                                             </p>

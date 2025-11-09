@@ -8,6 +8,8 @@ import SignUpSuccess from "./pages/SignUpSuccess";
 import RidePostAndRequestPage from "./pages/RidePostAndRequestPage";
 import UserSettingsPage from "./pages/UserSettingsPage";
 import Ridesearch from "./pages/Ridesearch";
+import UserDashboard from "./pages/UserDashboard";
+
 
 function App() {
   return (
@@ -22,6 +24,7 @@ function App() {
           <Route path="/rides" element={<RidePostAndRequestPage />} />
           <Route path="/ridesearch" element={<Ridesearch />} />
           <Route path="/settings" element={<UserSettingsPage />} />
+          <Route path="/dashboard" element={<UserDashboard />} />
         </Routes>
       </Router>
     </AuthProvider>

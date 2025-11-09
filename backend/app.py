@@ -1,3 +1,4 @@
+
 """
 FareShare API - Main Application
 FastAPI application entry point with health checks and database connectivity.
@@ -13,7 +14,7 @@ from sqlalchemy import text, select
 
 from src.config.db import init_db, close_db, get_async_session
 from src.models import User, Ride, Booking, Review
-from src.routes import auth_router, users_router, rides_router
+from src.routes import auth_router, users_router, rides_router,dashboard_router
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
@@ -67,6 +68,7 @@ app.mount("/uploads", StaticFiles(directory="uploads"), name="uploads")
 app.include_router(auth_router, prefix="/api")
 app.include_router(users_router, prefix="/api")
 app.include_router(rides_router, prefix="/api")
+app.include_router(dashboard_router,prefix="/api")
 
 
 @app.get("/", tags=["Root"])
@@ -138,3 +140,4 @@ if __name__ == "__main__":
         port=8000,
         reload=True  # Disable in production
     )
+
