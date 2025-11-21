@@ -1,0 +1,14 @@
+[33mcommit 6e062e637c6df61c27d4313548682c61609bf537[m[33m ([m[1;36mHEAD -> [m[1;32missue-16[m[33m)[m
+Author: TheGamer <syed.shah.690@my.werbr.ca>
+Date:   Sat Nov 8 19:04:38 2025 -0500
+
+    Completed User Dashboard
+
+.gitignore
+backend/app.py
+backend/src/routes/__init__.py
+backend/src/routes/dashboard.py
+backend/src/schemas/dashboard.py
+frontend/src/App.tsx
+frontend/src/components/Header.tsx
+frontend/src/pages/UserDashboard.tsx
