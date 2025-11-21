@@ -15,7 +15,7 @@ from src.schemas.user import (
     UserResponse, UserProfileUpdate, UserPasswordChange,
     AvatarUploadResponse, PrivacyResponse
 )
-from src.auth import (
+from src.schemas.auth import (
     get_current_active_user, 
     verify_password, 
     get_password_hash,

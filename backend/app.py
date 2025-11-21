@@ -14,10 +14,12 @@ from contextlib import asynccontextmanager
 import logging
 import os
 from sqlalchemy import text, select
+from dotenv import load_dotenv
 
 from src.config.db import init_db, close_db, get_async_session
 from src.models import User, Ride, Booking, Review
 from src.routes import auth_router, users_router, rides_router, booking_router, trip_summary # Trip summary routes
+from src.routes.reviews import router as reviews_router
 
 
 # Configure logging
@@ -33,6 +35,8 @@ async def lifespan(app: FastAPI):
     - Shutdown: Close all database connections
     """
     # Startup
+    # Load environment variables from .env
+    load_dotenv()
     logger.info("🚀 Starting FareShare API...")
     await init_db()
     logger.info("✅ Database connection pool initialized")
@@ -54,10 +58,22 @@ app = FastAPI(
 )
 
 # CORS middleware - configure based on your frontend URL
+# Use explicit origins when sending credentials; '*' is invalid with credentials
+cors_origins_env = os.getenv("CORS_ORIGINS", "").strip()
+if cors_origins_env:
+    allow_origins = [o.strip() for o in cors_origins_env.split(",") if o.strip()]
+else:
+    # Sensible defaults for Vite dev server (ports 5173 and 5174)
+    allow_origins = [
+        "http://localhost:5173",
+        "http://127.0.0.1:5173",
+        "http://localhost:5174",
+        "http://127.0.0.1:5174",
+    ]
+
 app.add_middleware(
     CORSMiddleware,
-    # Allow all origins for development - replace with specific domains in production
-    allow_origins=["*"],  # For development only!
+    allow_origins=allow_origins,
     allow_credentials=True,
     allow_methods=["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
     allow_headers=["*"],
@@ -73,6 +89,7 @@ app.include_router(auth_router, prefix="/api")
 app.include_router(users_router, prefix="/api")
 app.include_router(rides_router, prefix="/api")
 app.include_router(booking_router, prefix="/api")
+app.include_router(reviews_router, prefix="/api")
 app.include_router(trip_summary.router) # Trip summary routes (already has /api/trips prefix)
 from src.routes.geo import router as geo_router
 app.include_router(geo_router, prefix="/api")  # Geocoding routes

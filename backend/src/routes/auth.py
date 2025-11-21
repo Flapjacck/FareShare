@@ -13,7 +13,7 @@ from src.config.db import get_db
 from src.config.email import send_verification_email
 from src.models.user import User
 from src.schemas.user import UserRegister, UserLogin, Token, UserResponse
-from src.auth import (
+from src.schemas.auth import (
     get_password_hash,
     verify_password,
     create_access_token,

@@ -18,6 +18,7 @@ import {
     Loader2,
 } from 'lucide-react';
 import { useBookings } from '../hooks/useBookings';
+import { StarRating } from './StarRating';
 import type { SearchResultRide } from '../types';
 
 interface BookingModalProps {
@@ -174,18 +175,17 @@ export default function BookingModal({
                                                     <Users size={14} />
                                                     <span>{ride.seats_available} seat(s) available</span>
                                                 </div>
-                                                {ride.driver_rating && (
+                                                {ride.driver_rating ? (
                                                     <div className="flex items-center gap-2">
-                                                        <Star
-                                                            size={14}
-                                                            style={{
-                                                                fill: 'var(--color-secondary)',
-                                                                color: 'var(--color-secondary)',
-                                                            }}
-                                                        />
-                                                        <span>
-                                                            Driver Rating: {ride.driver_rating.toFixed(1)}
+                                                        <span className="text-xs">Driver:</span>
+                                                        <StarRating rating={ride.driver_rating} readonly size="sm" />
+                                                        <span className="text-xs">
+                                                            {ride.driver_rating.toFixed(1)}
                                                         </span>
+                                                    </div>
+                                                ) : (
+                                                    <div className="text-xs text-gray-500">
+                                                        Driver: No ratings yet
                                                     </div>
                                                 )}
                                             </div>

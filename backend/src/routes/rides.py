@@ -34,7 +34,7 @@ from src.schemas.ride import (
     RideSearchResponse,
     RideSearchItem
 )
-from src.auth import get_current_active_user
+from src.schemas.auth import get_current_active_user
 
 router = APIRouter(prefix="/rides", tags=["Rides"])
 

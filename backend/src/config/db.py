@@ -6,6 +6,7 @@ import os
 from contextlib import asynccontextmanager
 from typing import AsyncGenerator
 from dotenv import load_dotenv
+import logging
 
 from sqlalchemy.ext.asyncio import (
     create_async_engine,
@@ -18,6 +19,7 @@ from sqlalchemy import text
 
 # Load environment variables from .env file
 load_dotenv()
+logger = logging.getLogger(__name__)
 
 # Database configuration
 DATABASE_URL = os.getenv("DATABASE_URL")
@@ -89,6 +91,26 @@ async def init_db() -> None:
         class_=AsyncSession,
         expire_on_commit=False,  # Prevent lazy loading errors after commit
     )
+
+    # Optionally auto-create database tables in development
+    auto_create = os.getenv("AUTO_CREATE_TABLES", "").lower() in ("1", "true", "yes")
+    if auto_create:
+        try:
+            # Ensure models are imported so metadata is populated
+            from src.models import User, Ride, Booking, Review  # noqa: F401
+
+            async with async_engine.begin() as conn:
+                # Create pgcrypto extension for gen_random_uuid() if available
+                try:
+                    await conn.execute(text("CREATE EXTENSION IF NOT EXISTS pgcrypto"))
+                except Exception as e:
+                    logger.warning(f"Could not ensure pgcrypto extension: {e}")
+                # Create all tables based on SQLAlchemy models
+                await conn.run_sync(Base.metadata.create_all)
+            logger.info("✅ Database tables ensured (AUTO_CREATE_TABLES enabled)")
+        except Exception as e:
+            logger.error(f"Failed to auto-create tables: {e}")
+            raise
 
 
 async def close_db() -> None:

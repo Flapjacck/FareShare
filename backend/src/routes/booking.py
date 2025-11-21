@@ -31,7 +31,7 @@ from src.schemas.booking import (
     PassengerInfo,
     RideInfoBasic
 )
-from src.auth import get_current_active_user
+from src.schemas.auth import get_current_active_user
 
 router = APIRouter(prefix="/bookings", tags=["Bookings"])
 

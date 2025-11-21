@@ -43,3 +43,5 @@ redis  # For caching and message broker
 celery  # For background tasks
 phonenumbers  # For phone number validation
 python-dateutil  # Extended datetime functionality
+fastapi-mail # For sending emails
+itsdangerous  # For generating secure tokens
