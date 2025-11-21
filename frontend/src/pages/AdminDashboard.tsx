@@ -321,7 +321,11 @@ const fetchIncidents = async (page: number) => {
 
       const data = await response.json();
       setIncidents(data.results); 
-      setTotalPages(Math.ceil(data.total / data.limit));
+      if (data.results.length === itemsPerPage) {
+      setTotalPages(page + 1); 
+    } else {
+      setTotalPages(page); 
+    }
     }
   } catch (err: any) {
     setError(err instanceof Error ? err.message : String(err));
