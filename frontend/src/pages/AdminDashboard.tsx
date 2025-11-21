@@ -21,17 +21,15 @@ import {
 } from "lucide-react";
 
 // ============================================================
-// CONFIGURATION - Change this when backend is ready
+// CONFIGURATION - MOCK DATA TOGGLE
 // ============================================================
 const USE_MOCK_DATA = false; // Set to false when backend is ready
-const API_BASE_URL = "http://127.0.0.1:8000"; // Your backend URL
-
-
+const API_BASE_URL = "http://127.0.0.1:8000"; 
 
 
 
 // ============================================================
-// TYPE DEFINITIONS (matching backend spec)
+// TYPE DEFINITIONS 
 // ============================================================
 interface Report {
   rides_total: number;
@@ -78,7 +76,6 @@ interface Incident {
   user: { id: string; name: string };
   ride_id: string;
 }
-
 
 
 
@@ -163,7 +160,6 @@ const generateMockIncidents = (page: number, limit: number): Incident[] => {
 export default function AdminDashboard() {
   
   const { token } = useAuth();
-  console.log("Token being used for fetch:", token);
 
   // Tab state
   const [activeTab, setActiveTab] = useState<"overview" | "rides" | "incidents">("overview");
@@ -183,6 +179,7 @@ export default function AdminDashboard() {
   const [incidents, setIncidents] = useState<Incident[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [showName, setShowName] = useState(true); // Toggle for driver name/id display
   
   // Pagination
   const [currentPage, setCurrentPage] = useState(1);
@@ -279,17 +276,13 @@ const fetchRides = async (page: number) => {
 
     const data = await response.json();
 
-    // Backend returns: { page, limit, results }
     setRides(data.results);
 
-    // Since backend doesn't return 'total', we'll use a simple approach:
-    // If we got a full page of results, assume there might be more pages
     if (data.results.length === itemsPerPage) {
-      setTotalPages(page + 1); // At least one more page might exist
+      setTotalPages(page + 1); 
     } else {
-      setTotalPages(page); // This is the last page
+      setTotalPages(page); 
     }
-
     
   } catch (err: any) {
     console.error("Error fetching rides:", err);
@@ -298,8 +291,6 @@ const fetchRides = async (page: number) => {
     setLoading(false);
   }
 };
-
-
 
 const fetchIncidents = async (page: number) => {
   setLoading(true);
@@ -329,7 +320,7 @@ const fetchIncidents = async (page: number) => {
       if (!response.ok) throw new Error(`Failed to fetch incidents: ${response.status}`);
 
       const data = await response.json();
-      setIncidents(data.results);  // <-- use `results` from backend
+      setIncidents(data.results); 
       setTotalPages(Math.ceil(data.total / data.limit));
     }
   } catch (err: any) {
@@ -339,7 +330,6 @@ const fetchIncidents = async (page: number) => {
     setLoading(false);
   }
 };
-
 
   const downloadCSV = async () => {
     if (USE_MOCK_DATA) {
@@ -383,8 +373,7 @@ const fetchIncidents = async (page: number) => {
   // ============================================================
   // EFFECTS
   // ============================================================
-  
-  
+    
   useEffect(() => {
     if (!token) return; 
     if (activeTab === "overview") {
@@ -419,8 +408,6 @@ const fetchIncidents = async (page: number) => {
     );
   };
 
-  const [showName, setShowName] = useState(true);
-  const [chartScale, setChartScale] = useState<"relative" | "absolute">("relative");
 
 
   
@@ -490,6 +477,7 @@ const fetchIncidents = async (page: number) => {
             </div>
 
             {/* Status Filter */}
+            {(activeTab !== "incidents" && 
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
                 Status
@@ -502,13 +490,14 @@ const fetchIncidents = async (page: number) => {
               >
                 <option value="all">All</option>
                 <option value="open">Open</option>
+                <option value="full">Full</option>
                 <option value="confirmed">Confirmed</option>
                 <option value="completed">Completed</option>
                 <option value="cancelled">Cancelled</option>
                 <option value="denied">Denied</option>
               </select>
             </div>
-
+            )}
             {/* Group By (Overview only) */}
             {activeTab === "overview" && (
               <div>
@@ -528,7 +517,7 @@ const fetchIncidents = async (page: number) => {
               </div>
             )}
             {activeTab === "incidents" && (
-<div>
+              <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
                   Moderation Status
                 </label>
@@ -696,52 +685,52 @@ const fetchIncidents = async (page: number) => {
               
               {/* Simple bar chart */}
               <div className="space-y-6">
-    {usageData.buckets.map((bucket, index) => {
-      const maxRides = Math.max(...usageData.buckets.map(b => b.rides));
-      const maxEarnings = Math.max(...usageData.buckets.map(b => b.earnings));
-      
-      return (
-        <div key={index} className="space-y-3">
-          <div className="font-medium text-gray-700 text-sm">
-            {bucket.period}
-          </div>
-          
-          {/* Rides Bar */}
-          <div className="space-y-1">
-            <div className="flex items-center justify-between text-xs">
-              <span className="text-gray-600">Rides</span>
-              <span className="font-semibold text-gray-900">{bucket.rides}</span>
-            </div>
-            <div className="relative h-6 bg-gray-100 rounded-lg overflow-hidden">
-              <motion.div
-                initial={{ width: 0 }}
-                animate={{ width: `${(bucket.rides / maxRides) * 100}%` }}
-                transition={{ delay: index * 0.1, duration: 0.5 }}
-                className="absolute inset-y-0 left-0 bg-gradient-to-r from-orange-600 to-orange-400 rounded-lg"
-              />
-            </div>
-          </div>
-          
-          
-          {/* Earnings Bar */}
-          <div className="space-y-1">
-            <div className="flex items-center justify-between text-xs">
-              <span className="text-gray-600">Earnings</span>
-              <span className="font-semibold text-gray-900">${bucket.earnings.toFixed(2)}</span>
-            </div>
-            <div className="relative h-6 bg-gray-100 rounded-lg overflow-hidden">
-              <motion.div
-                initial={{ width: 0 }}
-                animate={{ width: `${(bucket.earnings / maxEarnings) * 100}%` }}
-                transition={{ delay: index * 0.1 + 0.1, duration: 0.5 }}
-                className="absolute inset-y-0 left-0 bg-gradient-to-r from-green-600 to-green-400 rounded-lg"
-              />
-            </div>
-          </div>
-        </div>
-      );
-    })}
-  </div>
+                {usageData.buckets.map((bucket, index) => {
+                  const maxRides = Math.max(...usageData.buckets.map(b => b.rides));
+                  const maxEarnings = Math.max(...usageData.buckets.map(b => b.earnings));
+                  
+                  return (
+                    <div key={index} className="space-y-3">
+                      <div className="font-medium text-gray-700 text-sm">
+                        {bucket.period}
+                      </div>
+                      
+                      {/* Rides Bar */}
+                      <div className="space-y-1">
+                        <div className="flex items-center justify-between text-xs">
+                          <span className="text-gray-600">Rides</span>
+                          <span className="font-semibold text-gray-900">{bucket.rides}</span>
+                        </div>
+                        <div className="relative h-6 bg-gray-100 rounded-lg overflow-hidden">
+                          <motion.div
+                            initial={{ width: 0 }}
+                            animate={{ width: `${(bucket.rides / maxRides) * 100}%` }}
+                            transition={{ delay: index * 0.1, duration: 0.5 }}
+                            className="absolute inset-y-0 left-0 bg-gradient-to-r from-orange-600 to-orange-400 rounded-lg"
+                          />
+                        </div>
+                      </div>
+                      
+                      
+                      {/* Earnings Bar */}
+                      <div className="space-y-1">
+                        <div className="flex items-center justify-between text-xs">
+                          <span className="text-gray-600">Earnings</span>
+                          <span className="font-semibold text-gray-900">${bucket.earnings.toFixed(2)}</span>
+                        </div>
+                        <div className="relative h-6 bg-gray-100 rounded-lg overflow-hidden">
+                          <motion.div
+                            initial={{ width: 0 }}
+                            animate={{ width: `${(bucket.earnings / maxEarnings) * 100}%` }}
+                            transition={{ delay: index * 0.1 + 0.1, duration: 0.5 }}
+                            className="absolute inset-y-0 left-0 bg-gradient-to-r from-green-600 to-green-400 rounded-lg"
+                          />
+                        </div>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
             </div>
 
             {/* Additional Stats */}
