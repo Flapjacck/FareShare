@@ -12,7 +12,6 @@ import {
     Calendar,
     Users,
     DollarSign,
-    Star,
     AlertCircle,
     CheckCircle,
     Loader2,

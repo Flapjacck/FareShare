@@ -8,7 +8,6 @@ import {
   DollarSign, 
   Search,
   ArrowRight,
-  Star,
   Loader2,
   AlertCircle,
   Filter,
